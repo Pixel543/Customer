@@ -21,3 +21,9 @@ public:
     ~Logger();
     void log(const std::string& message);
 };
+
+// ============== Customer ==============
+class Customer
+{
+
+};
