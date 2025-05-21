@@ -54,3 +54,77 @@ std::string Customer::toString() const
 }
 
 std::ostream& operator<<(std::ostream& os, const Customer& c) {return os << c.toString();}
+
+//CustomerManager implementation
+CustomerManager::CustomerManager(Logger& log)   : m_logger(log) {}
+
+void CustomerManager::add(const Customer& c)
+{
+    m_customers.push_back(c);
+    m_logger.log("Added: " + c.toString());
+}
+void CustomerManager:: sortByLastName()
+{
+    std::sort(m_customers.begin(), m_customers.end()),
+                [](const Customer& a, const Customer& b) {return a.getLastName() < b.getLastName();};
+    
+    m_logger.log("Sorted by last name");
+}
+
+std::vector<Customer> CustomerManager::filterByCardRange(int low, int high)
+{
+    std::vector<Customer> res;
+    for (auto& c : m_customers)
+    {
+        if (c.getCardNumber() >= low && c.getCardNumber() <= high)
+            res.push_back(c);
+    }
+    m_logger.log("Filtered cards in ["+ std::to_string(low) + ", " + std::to_string(high) + "]");
+    return res;
+}
+
+void CustomerManager::saveToFileEncrypted(const std::string& filename)
+{
+    std::ofstream ofs(filename, std::ios::binary);
+
+    for (auto& c : m_customers)
+    {
+        std::string line = c.toString() + "\n";
+        for (char ch : line)
+        {
+            char enc = ch ^ m_xorKey;
+            ofs.write(&enc, 1);
+        }
+    }
+    m_logger.log("Saved " + std::to_string(m_customers.size()) + " customers to " + filename);
+}
+
+void CustomerManager::loadFromFileEncrypted(const std::string& filename)
+{
+    std::ifstream ifs(filename, std::ios::binary);
+    if (!ifs)
+    {
+        m_logger.log("Cannot open file: " + filename);
+        return;
+    }
+    m_customers.clear();
+    std::string accum;
+    char ch;
+    while (ifs.read(&ch, 1))
+    {
+        char dec = ch ^ m_xorKey;
+        if (dec == '\n')
+        {
+            std::cout << "Loaded: " << accum << std::endl;
+            accum.clear();
+        } else {
+            accum.push_back(dec);
+        }
+    }
+    m_logger.log("Loaded and decrypted from " + filename);
+}
+void CustomerManager::printAll() const
+{
+    for (auto& c : m_customers)
+        std::cout << c << std::endl;
+}
