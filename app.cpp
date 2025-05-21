@@ -63,10 +63,10 @@ void CustomerManager::add(const Customer& c)
     m_customers.push_back(c);
     m_logger.log("Added: " + c.toString());
 }
-void CustomerManager:: sortByLastName()
+void CustomerManager::sortByLastName()
 {
-    std::sort(m_customers.begin(), m_customers.end()),
-                [](const Customer& a, const Customer& b) {return a.getLastName() < b.getLastName();};
+    std::sort(m_customers.begin(), m_customers.end(),
+                [](const Customer& a, const Customer& b) {return a.getLastName() < b.getLastName();});
     
     m_logger.log("Sorted by last name");
 }
