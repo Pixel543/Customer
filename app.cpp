@@ -17,6 +17,7 @@ void Logger::log(const std::string& message)
     time_t now = time(nullptr);
     char buff[20];
     strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", localtime(&now));
+    if (logFile) logFile << "[" << buff << "] " << message << "\n";
 }
 
 //Customer implementation
@@ -117,9 +118,7 @@ void CustomerManager::loadFromFileEncrypted(const std::string& filename)
         {
             std::cout << "Loaded: " << accum << std::endl;
             accum.clear();
-        } else {
-            accum.push_back(dec);
-        }
+        } else {accum.push_back(dec);}
     }
     m_logger.log("Loaded and decrypted from " + filename);
 }
